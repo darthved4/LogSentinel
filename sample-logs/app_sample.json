@@ -1,0 +1,33 @@
+{
+  "events": [
+    {
+      "asset_id": "app-001",
+      "name": "payments-api",
+      "type": "asset",
+      "environment": "production"
+    },
+    {
+      "@timestamp": "2026-10-08T12:00:00Z",
+      "service": "payments-api",
+      "client_ip": "203.0.113.10",
+      "http_method": "POST",
+      "request_uri": "/v1/payments",
+      "status_code": 201,
+      "username": "jordan",
+      "message": "Payment created",
+      "asset_id": "app-001",
+      "latency_ms": 142
+    },
+    {
+      "time": "2026-10-08T12:01:04Z",
+      "source": "payments-api",
+      "remote_addr": "203.0.113.12",
+      "method": "GET",
+      "url": "/health",
+      "status": 200,
+      "message": "Health check",
+      "asset_id": "app-001",
+      "latency_ms": 8
+    }
+  ]
+}

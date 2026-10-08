@@ -3,5 +3,6 @@ uvicorn[standard]
 pymongo
 dnspython
 python-dotenv
+python-multipart
 scikit-learn
 pytest

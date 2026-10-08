@@ -1,14 +1,16 @@
 from contextlib import asynccontextmanager
 
 from bson import ObjectId
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.database import close_database, connect_database, get_database
 from app.detection import DetectionEngine, DetectionResult
 from app.detection.models import PersistedIncident
 from app.incidents import list_incidents, persist_incidents
+from app.ingestion.service import IngestionResponse, parse_log_text
 from app.models import EventCreate, EventResponse
+from app.pipeline import process_event_batch
 
 
 detection_engine = DetectionEngine()
@@ -53,6 +55,31 @@ async def create_event(event: EventCreate) -> EventResponse:
     document = event.model_dump()
     result = await database.events.insert_one(document)
     return EventResponse(id=str(result.inserted_id), **document)
+
+
+@app.post("/api/logs/upload", response_model=IngestionResponse, status_code=201)
+async def upload_log(
+    file: UploadFile = File(...),
+    log_format: str = "auto",
+) -> IngestionResponse:
+    if log_format not in {"auto", "nginx", "apache", "auth"}:
+        raise HTTPException(status_code=400, detail="Unsupported log format")
+    try:
+        text = (await file.read()).decode("utf-8-sig")
+    except UnicodeDecodeError as error:
+        raise HTTPException(status_code=400, detail="Log files must be UTF-8 encoded") from error
+
+    parsed = parse_log_text(text, file.filename or "uploaded.log", log_format)
+    if not parsed.events:
+        raise HTTPException(status_code=422, detail="No valid log events were found")
+    batch = await process_event_batch(get_database(), parsed.events)
+    return IngestionResponse(
+        filename=file.filename or "uploaded.log",
+        accepted_events=len(parsed.events),
+        rejected_records=len(parsed.errors),
+        parse_errors=parsed.errors,
+        batch=batch,
+    )
 
 
 @app.post("/api/detect", response_model=DetectionResult)

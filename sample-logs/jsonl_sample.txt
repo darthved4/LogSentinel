@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-08T12:20:00Z","source":"app","client_ip":"203.0.113.60","http_method":"GET","url":"/health","status_code":200,"message":"ok"}
+{"time":"2026-10-08T12:20:01Z","service":"app","remote_addr":"203.0.113.60","method":"GET","path":"/missing","status":404,"message":"not found"}
+not valid json

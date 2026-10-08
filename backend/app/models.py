@@ -8,6 +8,7 @@ class EventCreate(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     source: str = "demo-site"
     ip: str | None = None
+    user: str | None = None
     method: str | None = None
     path: str | None = None
     status: int | None = None
@@ -19,4 +20,3 @@ class EventCreate(BaseModel):
 
 class EventResponse(EventCreate):
     id: str
-

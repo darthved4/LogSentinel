@@ -64,3 +64,21 @@ The ingestion layer should call `app.pipeline.process_event_batch(database, even
 has parsed a file into `list[EventCreate]`. The function assigns an upload batch ID, stores all
 events, runs detection, and persists deduplicated incidents. It returns the batch ID, MongoDB
 event IDs, and created incident records.
+
+## Log ingestion
+
+Sample logs are stored in `../sample-logs/`. Ingest a supported JSON, JSONL, Nginx, Apache,
+or auth log through the full MongoDB and detection pipeline:
+
+```powershell
+python -m app.ingestion.service ..\sample-logs\attack_scenario.jsonl
+```
+
+The FastAPI upload endpoint is `POST /api/logs/upload`. It accepts a multipart `file` field and
+an optional `log_format` value of `auto`, `nginx`, `apache`, or `auth`.
+
+Run the complete parser-to-Atlas pipeline test:
+
+```powershell
+python -m scripts.test_ingestion_pipeline
+```
